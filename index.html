@@ -25,39 +25,58 @@
 <body>
     <h1>Multi Site Tester</h1>
     <button onclick="reloadFrames()">Recarregar Tudo</button>
-    <div class="container">
-        <script>
-            for (let i = 1; i <= 21; i++) {
-                document.write(`<iframe src="about:blank" id="frame${i}"></iframe>`);
-            }
-        </script>
-    </div>
+    <div class="container" id="iframeContainer"></div>
+    
     <script>
+        const totalFrames = 21;
+        const iframes = [];
+
+        function createFrames() {
+            const container = document.getElementById("iframeContainer");
+            for (let i = 1; i <= totalFrames; i++) {
+                let iframe = document.createElement("iframe");
+                iframe.id = `frame${i}`;
+                iframe.src = "about:blank";
+                container.appendChild(iframe);
+                iframes.push(iframe);
+            }
+        }
+
         function loadSites() {
-            for (let i = 1; i <= 21; i++) {
-                let url = prompt(`Digite a URL para o quadro ${i}:`, "https://");
+            iframes.forEach((frame, index) => {
+                let url = prompt(`Digite a URL para o quadro ${index + 1}:`, "https://");
                 if (url) {
-                    document.getElementById(`frame${i}`).src = url;
+                    frame.src = url;
                 }
-            }
+            });
         }
+
         function reloadFrames() {
-            for (let i = 1; i <= 21; i++) {
-                let frame = document.getElementById(`frame${i}`);
-                frame.contentWindow.location.reload();
-            }
+            iframes.forEach(frame => {
+                frame.src = frame.src; // Força a recarga redefinindo o src
+            });
         }
+
         function scrollFrames() {
-            for (let i = 1; i <= 21; i++) {
-                let frame = document.getElementById(`frame${i}`);
-                frame.contentWindow.scrollTo(0, frame.contentWindow.document.body.scrollHeight);
-            }
+            iframes.forEach(frame => {
+                try {
+                    let doc = frame.contentWindow.document;
+                    if (doc && doc.body) {
+                        frame.contentWindow.scrollTo({ top: doc.body.scrollHeight, behavior: "smooth" });
+                    }
+                } catch (e) {
+                    console.warn("Não foi possível rolar o iframe", frame.id);
+                }
+            });
         }
+
         function autoLoop() {
             reloadFrames();
             setTimeout(scrollFrames, 5000);
         }
+
         window.onload = () => {
+            createFrames();
             loadSites();
             setInterval(autoLoop, 10000);
         };
