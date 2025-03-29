@@ -25,8 +25,13 @@
 <body>
     <h1>Multi Site Tester</h1>
     <button onclick="reloadFrames()">Recarregar Tudo</button>
+    <button onclick="scrollFrames()">Rolar Tudo</button>
+    <br><br>
+    <label for="siteUrl">Digite o link para aplicar em todos os quadros:</label>
+    <input type="text" id="siteUrl" placeholder="Digite a URL">
+    <button onclick="applySite()">Aplicar em Todos</button>
     <div class="container" id="iframeContainer"></div>
-    
+
     <script>
         const totalFrames = 21;
         const iframes = [];
@@ -42,13 +47,13 @@
             }
         }
 
-        function loadSites() {
-            iframes.forEach((frame, index) => {
-                let url = prompt(`Digite a URL para o quadro ${index + 1}:`, "https://");
-                if (url) {
+        function applySite() {
+            const url = document.getElementById("siteUrl").value;
+            if (url) {
+                iframes.forEach(frame => {
                     frame.src = url;
-                }
-            });
+                });
+            }
         }
 
         function reloadFrames() {
@@ -60,25 +65,26 @@
         function scrollFrames() {
             iframes.forEach(frame => {
                 try {
-                    let doc = frame.contentWindow.document;
+                    let win = frame.contentWindow;
+                    let doc = win.document;
                     if (doc && doc.body) {
-                        frame.contentWindow.scrollTo({ top: doc.body.scrollHeight, behavior: "smooth" });
+                        win.scrollTo({ top: doc.body.scrollHeight, behavior: "smooth" });
+                        console.log(`Rolagem aplicada no ${frame.id}`);
                     }
                 } catch (e) {
-                    console.warn("Não foi possível rolar o iframe", frame.id);
+                    console.warn(`Não foi possível rolar o iframe ${frame.id}. O site pode ter bloqueado.`);
                 }
             });
         }
 
         function autoLoop() {
             reloadFrames();
-            setTimeout(scrollFrames, 5000);
+            setTimeout(scrollFrames, 6000); // Garante que a rolagem aconteça depois da recarga
         }
 
         window.onload = () => {
             createFrames();
-            loadSites();
-            setInterval(autoLoop, 10000);
+            setInterval(autoLoop, 10000); // Recarregar e rolar automaticamente a cada 10 segundos
         };
     </script>
 </body>
